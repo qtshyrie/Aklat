@@ -36,10 +36,10 @@ public class Funtion extends javax.swing.JFrame {
         BookTitleTextField = new javax.swing.JTextField();
         BookAuthorTextField = new javax.swing.JTextField();
         BookPublisherTextField = new javax.swing.JTextField();
-        DateOfPublishTextField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        DateOfPublishTextField = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -59,12 +59,13 @@ public class Funtion extends javax.swing.JFrame {
         jLabel4.setText("Date Of Publish");
 
         BookTitleTextField.setFont(new java.awt.Font("DejaVu Sans", 0, 12)); // NOI18N
+        BookTitleTextField.addActionListener(this::BookTitleTextFieldActionPerformed);
 
         BookAuthorTextField.setFont(new java.awt.Font("DejaVu Sans", 0, 12)); // NOI18N
+        BookAuthorTextField.addActionListener(this::BookAuthorTextFieldActionPerformed);
 
         BookPublisherTextField.setFont(new java.awt.Font("DejaVu Sans", 0, 12)); // NOI18N
-
-        DateOfPublishTextField.setFont(new java.awt.Font("DejaVu Sans", 0, 12)); // NOI18N
+        BookPublisherTextField.addActionListener(this::BookPublisherTextFieldActionPerformed);
 
         jLabel5.setBackground(new java.awt.Color(255, 255, 255));
         jLabel5.setFont(new java.awt.Font("DejaVu Sans", 1, 18)); // NOI18N
@@ -75,6 +76,7 @@ public class Funtion extends javax.swing.JFrame {
         jButton1.setFont(new java.awt.Font("DejaVu Sans", 1, 12)); // NOI18N
         jButton1.setForeground(new java.awt.Color(0, 102, 204));
         jButton1.setText("ADD");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jButton2.setFont(new java.awt.Font("DejaVu Sans", 1, 12)); // NOI18N
         jButton2.setForeground(new java.awt.Color(0, 102, 204));
@@ -88,14 +90,14 @@ public class Funtion extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(53, 53, 53)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(BookTitleTextField)
+                    .addComponent(BookTitleTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel2)
                     .addComponent(jLabel1)
                     .addComponent(jLabel3)
                     .addComponent(BookAuthorTextField)
                     .addComponent(BookPublisherTextField)
-                    .addComponent(DateOfPublishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE))
+                    .addComponent(DateOfPublishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(72, 72, 72)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -127,9 +129,9 @@ public class Funtion extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(DateOfPublishTextField)
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(DateOfPublishTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(63, 63, 63))
         );
 
@@ -152,6 +154,60 @@ public class Funtion extends javax.swing.JFrame {
         new LandingPage().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void BookTitleTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BookTitleTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BookTitleTextFieldActionPerformed
+
+    private void BookAuthorTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BookAuthorTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BookAuthorTextFieldActionPerformed
+
+    private void BookPublisherTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BookPublisherTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BookPublisherTextFieldActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        String title = BookTitleTextField.getText().trim();
+        String author = BookAuthorTextField.getText().trim();
+        String publisher = BookPublisherTextField.getText().trim();
+        String publishDate = new java.text.SimpleDateFormat("yyyy-MM-dd")
+                            .format(DateOfPublishTextField.getDate());
+
+            if (title.isEmpty() || author.isEmpty() || publisher.isEmpty() 
+                    || DateOfPublishTextField.getDate() == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Please fill in all fields.", 
+                    "Warning", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            try {
+                DbConnection.Db.loadconnection();
+                java.sql.Connection conn = DbConnection.Db.conn;
+                String sql = "INSERT INTO aklatbooks (title, author, publisher, publish_date) VALUES (?, ?, ?, ?)";
+                java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setString(1, title);
+                pst.setString(2, author);
+                pst.setString(3, publisher);
+                pst.setString(4, publishDate);
+                pst.executeUpdate();
+
+                javax.swing.JOptionPane.showMessageDialog(this, "Book added successfully!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+                // Clear fields after adding
+                BookTitleTextField.setText("");
+                BookAuthorTextField.setText("");
+                BookPublisherTextField.setText("");
+                DateOfPublishTextField.setDate(null);
+
+                pst.close();
+                conn.close();
+            } catch (Exception e) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                logger.log(java.util.logging.Level.SEVERE, null, e);
+            }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -182,7 +238,7 @@ public class Funtion extends javax.swing.JFrame {
     private javax.swing.JTextField BookAuthorTextField;
     private javax.swing.JTextField BookPublisherTextField;
     private javax.swing.JTextField BookTitleTextField;
-    private javax.swing.JTextField DateOfPublishTextField;
+    private com.toedter.calendar.JDateChooser DateOfPublishTextField;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
