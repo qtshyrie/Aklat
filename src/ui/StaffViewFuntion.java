@@ -4,22 +4,19 @@
  */
 package ui;
 
-import DbConnection.Db;
-
 /**
  *
  * @author RAM
  */
-public class ViewFuntion extends javax.swing.JFrame {
+public class StaffViewFuntion extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ViewFuntion.class.getName());
 
     /**
      * Creates new form ViewFuntion
      */
-    public ViewFuntion() {
+    public StaffViewFuntion() {
         initComponents();
-        Db.loadconnection();
         loadAllBooks();
     }
 
@@ -72,19 +69,19 @@ public class ViewFuntion extends javax.swing.JFrame {
         jLabel2.setText("Search Book");
 
         jLabel3.setFont(new java.awt.Font("DejaVu Sans Mono", 0, 12)); // NOI18N
-        jLabel3.setText("Search Author");
+        jLabel3.setText("Search Borrower");
 
         jTable1.setBackground(new java.awt.Color(0, 255, 0));
         jTable1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "ID", "Book", "Author", "Status"
+                "ID", "Book", "Borrowed Date", "Status", "Borrower"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -159,7 +156,7 @@ public class ViewFuntion extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        new LandingPage().setVisible(true);
+        new StaffLandingPage().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -172,22 +169,24 @@ public class ViewFuntion extends javax.swing.JFrame {
         DbConnection.Db.loadconnection();
         java.sql.Connection conn = DbConnection.Db.conn;
 
-        String sql = "SELECT id, title, author, status FROM aklatbooks";
+        String sql = "SELECT id, book_title, borrow_date, status, borrower FROM borrowed_books WHERE status = 'borrowed'";
         java.sql.PreparedStatement pst = conn.prepareStatement(sql);
         java.sql.ResultSet rs = pst.executeQuery();
 
         javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel();
         model.addColumn("ID");
         model.addColumn("Book");
-        model.addColumn("Author");
+        model.addColumn("Borrowed Date");
         model.addColumn("Status");
+        model.addColumn("Borrower");
 
         while (rs.next()) {
             model.addRow(new Object[]{
                 rs.getInt("id"),
-                rs.getString("title"),
-                rs.getString("author"),
-                rs.getString("status")
+                rs.getString("book_title"),
+                rs.getString("borrow_date"),
+                rs.getString("status"),
+                rs.getString("borrower")
             });
         }
 
@@ -209,7 +208,7 @@ public class ViewFuntion extends javax.swing.JFrame {
         DbConnection.Db.loadconnection();
         java.sql.Connection conn = DbConnection.Db.conn;
 
-        String sql = "SELECT id, title, author, status FROM aklatbooks WHERE title LIKE ? AND author LIKE ?";
+        String sql = "SELECT id, book_title, borrow_date, status, borrower FROM borrowed_books WHERE book_title LIKE ? AND borrower LIKE ? AND status = 'borrowed'";
         java.sql.PreparedStatement pst = conn.prepareStatement(sql);
         pst.setString(1, "%" + searchBook + "%");
         pst.setString(2, "%" + searchAuthor + "%");
@@ -220,15 +219,17 @@ public class ViewFuntion extends javax.swing.JFrame {
         javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel();
         model.addColumn("ID");
         model.addColumn("Book");
-        model.addColumn("Author");
+        model.addColumn("Borrowed Date");
         model.addColumn("Status");
+        model.addColumn("Borrower");
 
         while (rs.next()) {
             model.addRow(new Object[]{
                 rs.getInt("id"),
-                rs.getString("title"),
-                rs.getString("author"),
-                rs.getString("status")
+                rs.getString("book_title"),
+                rs.getString("borrow_date"),
+                rs.getString("status"),
+                rs.getString("borrower")
             });
         }
 
@@ -265,7 +266,7 @@ public class ViewFuntion extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new ViewFuntion().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new StaffViewFuntion().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

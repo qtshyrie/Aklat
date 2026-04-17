@@ -3,7 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package ui;
-
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Connection;
 /**
  *
  * @author RAM
@@ -53,13 +57,14 @@ public class BorrowFuntion extends javax.swing.JFrame {
 
         jLabel3.setFont(new java.awt.Font("DejaVu Sans Mono", 0, 12)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("Book Title");
+        jLabel3.setText("Book Author");
 
         jTextField1.setFont(new java.awt.Font("DejaVu Sans Mono", 0, 12)); // NOI18N
 
         jTextField2.setFont(new java.awt.Font("DejaVu Sans Mono", 0, 12)); // NOI18N
 
         jButton1.setText("BORROW BOOK");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jButton2.setText("EXIT");
         jButton2.addActionListener(this::jButton2ActionPerformed);
@@ -151,6 +156,7 @@ public class BorrowFuntion extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -158,6 +164,97 @@ public class BorrowFuntion extends javax.swing.JFrame {
         new LandingPage().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        try {
+    if (DbConnection.Db.conn == null || DbConnection.Db.conn.isClosed()) {
+        DbConnection.Db.loadconnection(); // reconnect
+    }
+} catch (SQLException e) {
+    e.printStackTrace();
+}
+
+        String bookTitle = jTextField1.getText().trim();
+        String bookAuthor = jTextField2.getText().trim();
+
+        if (bookTitle.isEmpty() || bookAuthor.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Please fill in all fields.",
+                "Missing Input",
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            // ✅ STEP 1: Check sa aklatbooks (same as ADD)
+            String checkSql = "SELECT 1 FROM aklatbooks WHERE title = ? AND author = ?";
+            PreparedStatement checkStmt = DbConnection.Db.conn.prepareStatement(checkSql);
+            checkStmt.setString(1, bookTitle);
+            checkStmt.setString(2, bookAuthor);
+
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (!rs.next()) {
+                jLabel4.setText("<html><center>Book not found</center></html>");
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "This book does not exist.",
+                    "Not Found",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // ✅ STEP 2: Check if already borrowed
+            String availSql = "SELECT 1 FROM borrowed_books WHERE book_title = ? AND status = 'borrowed'";
+            PreparedStatement availStmt = DbConnection.Db.conn.prepareStatement(availSql);
+            availStmt.setString(1, bookTitle);
+
+            ResultSet availRs = availStmt.executeQuery();
+
+            if (availRs.next()) {
+                jLabel4.setText("<html><center>Not Available</center></html>");
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "Book is currently borrowed.",
+                    "Not Available",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // ✅ STEP 3: Insert into borrowed_books
+            String borrower = StudentJframe.loggedFirstName + " " + StudentJframe.loggedLastName;
+
+            String borrowSql = "INSERT INTO borrowed_books (book_title, borrow_date, return_date, status, borrower) VALUES (?, NOW(), NULL, 'borrowed', ?)";
+
+            String aklatbookSql = "UPDATE aklatbooks SET status = ? WHERE title = ? AND author = ?";
+            PreparedStatement aklatStmt = DbConnection.Db.conn.prepareStatement(aklatbookSql);
+
+            aklatStmt.setString(1, "Not Available");
+            aklatStmt.setString(2, bookTitle);
+            aklatStmt.setString(3, bookAuthor);
+            aklatStmt.executeUpdate();
+
+            // ✅ Insert borrower here
+            PreparedStatement borrowStmt = DbConnection.Db.conn.prepareStatement(borrowSql);
+            borrowStmt.setString(1, bookTitle);
+            borrowStmt.setString(2, borrower); // 🔥 THIS IS THE IMPORTANT PART
+            borrowStmt.executeUpdate();
+            
+            jLabel4.setText("<html><center>Success!</center></html>");
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Book borrowed successfully!",
+                "Success",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            jTextField1.setText("");
+            jTextField2.setText("");
+
+        } catch (SQLException e) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Database error: " + e.getMessage(),
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -179,7 +276,16 @@ public class BorrowFuntion extends javax.swing.JFrame {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new BorrowFuntion().setVisible(true));
     }

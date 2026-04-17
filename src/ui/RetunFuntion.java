@@ -3,7 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package ui;
-
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Connection;
 /**
  *
  * @author RAM
@@ -34,13 +38,11 @@ public class RetunFuntion extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
         jTextField3 = new javax.swing.JTextField();
         jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
 
@@ -64,12 +66,10 @@ public class RetunFuntion extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("DejaVu Sans Mono", 0, 12)); // NOI18N
         jLabel4.setText("Book Publisher");
 
-        jLabel5.setFont(new java.awt.Font("DejaVu Sans Mono", 0, 12)); // NOI18N
-        jLabel5.setText("Date Borrowed");
-
         jButton1.setFont(new java.awt.Font("DejaVu Sans", 1, 12)); // NOI18N
         jButton1.setForeground(new java.awt.Color(0, 102, 204));
         jButton1.setText("RETURN BOOK");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jButton2.setFont(new java.awt.Font("DejaVu Sans", 1, 12)); // NOI18N
         jButton2.setForeground(new java.awt.Color(0, 102, 204));
@@ -115,10 +115,7 @@ public class RetunFuntion extends javax.swing.JFrame {
                         .addComponent(jLabel4))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(53, 53, 53)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel5)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
-                            .addComponent(jTextField5))))
+                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(53, 53, 53)
@@ -159,11 +156,7 @@ public class RetunFuntion extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -182,6 +175,7 @@ public class RetunFuntion extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
@@ -193,6 +187,77 @@ public class RetunFuntion extends javax.swing.JFrame {
         new LandingPage().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+         try {
+        if (DbConnection.Db.conn == null || DbConnection.Db.conn.isClosed()) {
+            DbConnection.Db.loadconnection();
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    String title = jTextField1.getText().trim();
+
+    if (title.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Enter book title.",
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    try {
+        // ✅ STEP 1: Check kung borrowed
+        String checkSql = "SELECT * FROM borrowed_books WHERE book_title = ? AND status = 'borrowed'";
+        PreparedStatement checkStmt = DbConnection.Db.conn.prepareStatement(checkSql);
+        checkStmt.setString(1, title);
+
+        ResultSet rs = checkStmt.executeQuery();
+
+        if (!rs.next()) {
+            jLabel6.setText("<html><center>Not Found</center></html>");
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Book is not currently borrowed.",
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // ✅ STEP 2: Update to returned
+        String returnSql = "UPDATE borrowed_books SET status = 'returned', return_date = NOW(), borrower = '' WHERE book_title = ? AND status = 'borrowed'";
+        String aklatbookSql = "UPDATE aklatbooks SET status = ? WHERE title = ?";
+
+        PreparedStatement aklatStmt = DbConnection.Db.conn.prepareStatement(aklatbookSql);
+        aklatStmt.setString(1, "Available");
+        aklatStmt.setString(2, title);
+
+        aklatStmt.executeUpdate();
+        PreparedStatement returnStmt = DbConnection.Db.conn.prepareStatement(returnSql);
+        returnStmt.setString(1, title);
+
+        int rows = returnStmt.executeUpdate();
+
+        if (rows > 0) {
+            jLabel6.setText("<html><center>Returned!</center></html>");
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Book returned successfully!",
+                "Success",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            jTextField1.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+        }
+
+    } catch (SQLException e) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Database error: " + e.getMessage(),
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -214,7 +279,16 @@ public class RetunFuntion extends javax.swing.JFrame {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new RetunFuntion().setVisible(true));
     }
@@ -226,7 +300,6 @@ public class RetunFuntion extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -234,6 +307,5 @@ public class RetunFuntion extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
     // End of variables declaration//GEN-END:variables
 }
