@@ -3,7 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package ui;
-
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Connection;
 /**
  *
  * @author RAM
@@ -70,6 +74,7 @@ public class RetunFuntion extends javax.swing.JFrame {
         jButton1.setFont(new java.awt.Font("DejaVu Sans", 1, 12)); // NOI18N
         jButton1.setForeground(new java.awt.Color(0, 102, 204));
         jButton1.setText("RETURN BOOK");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jButton2.setFont(new java.awt.Font("DejaVu Sans", 1, 12)); // NOI18N
         jButton2.setForeground(new java.awt.Color(0, 102, 204));
@@ -193,6 +198,71 @@ public class RetunFuntion extends javax.swing.JFrame {
         new LandingPage().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+ // ✅ Check / reconnect database
+    try {
+        if (DbConnection.Db.conn == null || DbConnection.Db.conn.isClosed()) {
+            DbConnection.Db.loadconnection();
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    String title = jTextField1.getText().trim();
+
+    if (title.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Enter book title.",
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    try {
+        // ✅ STEP 1: Check kung borrowed
+        String checkSql = "SELECT * FROM borrowed_books WHERE book_title = ? AND status = 'borrowed'";
+        PreparedStatement checkStmt = DbConnection.Db.conn.prepareStatement(checkSql);
+        checkStmt.setString(1, title);
+
+        ResultSet rs = checkStmt.executeQuery();
+
+        if (!rs.next()) {
+            jLabel6.setText("<html><center>Not Found</center></html>");
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Book is not currently borrowed.",
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // ✅ STEP 2: Update to returned
+        String returnSql = "UPDATE borrowed_books SET status = 'returned', return_date = NOW() WHERE book_title = ? AND status = 'borrowed'";
+        PreparedStatement returnStmt = DbConnection.Db.conn.prepareStatement(returnSql);
+        returnStmt.setString(1, title);
+
+        int rows = returnStmt.executeUpdate();
+
+        if (rows > 0) {
+            jLabel6.setText("<html><center>Returned!</center></html>");
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Book returned successfully!",
+                "Success",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            jTextField1.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+            jTextField5.setText("");
+        }
+
+    } catch (SQLException e) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Database error: " + e.getMessage(),
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+    }        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
