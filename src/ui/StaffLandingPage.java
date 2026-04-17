@@ -12,14 +12,14 @@ import javax.swing.JOptionPane;
  *
  * @author RAM
  */
-public class LandingPage extends javax.swing.JFrame {
+public class StaffLandingPage extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LandingPage.class.getName());
 
     /**
      * Creates new form LandingPage
      */
-    public LandingPage() {
+    public StaffLandingPage() {
         initComponents();
         setResizable(false);
         
@@ -43,9 +43,8 @@ public class LandingPage extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
@@ -87,20 +86,15 @@ public class LandingPage extends javax.swing.JFrame {
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText("SELECT AN OPTION");
 
+        jButton1.setBackground(new java.awt.Color(255, 102, 51));
+        jButton1.setFont(new java.awt.Font("DejaVu Sans", 0, 12)); // NOI18N
+        jButton1.setText("ADD BOOKS");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
+
         jButton2.setBackground(new java.awt.Color(255, 102, 51));
         jButton2.setFont(new java.awt.Font("DejaVu Sans", 0, 12)); // NOI18N
         jButton2.setText("VIEW BOOKS");
         jButton2.addActionListener(this::jButton2ActionPerformed);
-
-        jButton3.setBackground(new java.awt.Color(255, 102, 0));
-        jButton3.setFont(new java.awt.Font("DejaVu Sans", 0, 12)); // NOI18N
-        jButton3.setText("RETURN BOOKS");
-        jButton3.addActionListener(this::jButton3ActionPerformed);
-
-        jButton4.setBackground(new java.awt.Color(255, 102, 51));
-        jButton4.setFont(new java.awt.Font("DejaVu Sans", 0, 12)); // NOI18N
-        jButton4.setText("BORROW BOOKS");
-        jButton4.addActionListener(this::jButton4ActionPerformed);
 
         jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel10.setText("1");
@@ -133,8 +127,7 @@ public class LandingPage extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(158, 158, 158))))
         );
         jPanel4Layout.setVerticalGroup(
@@ -153,15 +146,13 @@ public class LandingPage extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
-                .addGap(98, 98, 98)
+                .addGap(65, 65, 65)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(55, 55, 55))
+                .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
+                .addGap(143, 143, 143))
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -258,23 +249,17 @@ public class LandingPage extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        new RetunFuntion().setVisible(true);
+        new Funtion().setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         new ViewFuntion().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-        new BorrowFuntion().setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -302,9 +287,8 @@ public class LandingPage extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
